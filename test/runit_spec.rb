@@ -1,6 +1,6 @@
 require 'rspec'
-require_relative '../src/xunit'
-require_relative '../fixture/fixture_xunit'
+require_relative '../src/runit'
+require_relative '../fixture/fixture_runit'
 
 class TestSinAssertionLogica
 
