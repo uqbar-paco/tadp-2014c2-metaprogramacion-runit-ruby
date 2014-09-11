@@ -49,6 +49,7 @@ describe 'Testear RUnit Rspec' do
     expect(resultado.success? TestLogica,
                              :test_verdadero_es_verdadero).
         to eq(true)
+    resultado.report
   end
 
 end

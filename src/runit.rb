@@ -1,11 +1,15 @@
+require 'colorize'
+
 class RunitRunner
 
 
   def run(*test_classes)
     resultado = Resultado.new
+    resultado.empezar_ejecucion
     test_classes.each do |test_class|
       self.run_tests_for test_class, resultado
     end
+    resultado.termino_ejecucion
     resultado
   end
 
@@ -33,10 +37,18 @@ class RunitRunner
 end
 
 class Resultado
-  attr_accessor :resultados
+  attr_accessor :resultados,:comienzo_corrida,:fin_corrida
 
   def initialize
     self.resultados = []
+  end
+
+  def empezar_ejecucion
+    self.comienzo_corrida = Time.now
+  end
+
+  def termino_ejecucion
+    self.fin_corrida = Time.now
   end
 
   def test_failed(test_class, method, exception)
@@ -53,6 +65,31 @@ class Resultado
 
   def success?(a_class, test)
     self.resultados.any? {|resultado| resultado.success? a_class,test}
+  end
+
+  def get_total_results
+    self.resultados.length
+  end
+
+  def get_failed_results
+    self.resultados.select{|resultado| resultado.is_a?(FailedTestResult)}
+  end
+
+  def get_successful_results
+    self.resultados.select{|resultado| resultado.is_a?(SuccessTestResult)}
+  end
+
+  def report_resultados
+    self.resultados.each do |resultado|
+      resultado.report
+    end
+  end
+
+  def report
+    self.report_resultados
+    puts "#{self.get_total_results} tests,#{self.get_successful_results.length} tests corrieron bien, fallaron  #{self.get_failed_results.length} tests".
+             colorize(:color => :blue, :background => :black)
+    puts "Los tests corrieron en #{(self.fin_corrida - self.comienzo_corrida)*1000} milliseconds".colorize(:color => :cyan, :background => :black)
   end
 
 end
@@ -84,6 +121,10 @@ class SuccessTestResult < TestResult
   def success?(a_class,test)
     self.eql? SuccessTestResult.new a_class,test
   end
+
+  def report
+
+  end
 end
 
 class FailedTestResult < TestResult
@@ -97,6 +138,12 @@ class FailedTestResult < TestResult
 
   def failed?(a_class, test)
     self.eql? FailedTestResult.new a_class,test,nil
+  end
+
+  def report
+    puts "Error en test #{self.method}: #{self.exception.message}".colorize(:color => :red, :background => :black)
+    puts self.exception.backtrace.join("\n").colorize(:color => :red, :background => :black)
+    puts "\n"
   end
 
 end
