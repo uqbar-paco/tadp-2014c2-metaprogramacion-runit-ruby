@@ -6,6 +6,10 @@ module Assertions
             "expected value #{expected} but was #{actual}"
     end
   end
+
+  def assert_true(value)
+    assert_equals true, value
+  end
 end
 
 class AssertionError < StandardError;

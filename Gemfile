@@ -1,2 +1,1 @@
 gem 'rspec'
-gem 'colorize'
